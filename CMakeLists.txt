@@ -7,9 +7,12 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 
+find_package(Lua REQUIRED)
+
 include_directories(include)
 include_directories(${GTKMM_INCLUDE_DIRS})
+include_directories(${LUA_INCLUDE_DIR})
 
-add_executable(BlackHat src/main.cpp include/black_hat.h src/black_hat.cpp include/terminal.h src/terminal.cpp)
+add_executable(BlackHat src/main.cpp include/black_hat.h src/black_hat.cpp include/terminal.h src/terminal.cpp include/program.h src/program.cpp)
 
-target_link_libraries(BlackHat ${GTKMM_LIBRARIES})
+target_link_libraries(BlackHat ${GTKMM_LIBRARIES} ${LUA_LIBRARIES})

@@ -7,7 +7,15 @@
 
 #include <gtkmm/widget.h>
 #include <gtkmm/window.h>
+#include <cairo.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#include <lua.hpp>
+
 #include <vector>
+#include <functional>
 
 struct Color {
     float r, g, b;
@@ -23,6 +31,8 @@ public:
     TerminalWidget(int width, int height, int font_width = 16, int font_height = 8);
     ~TerminalWidget() override;
 
+    void add_rows(int rows = 1);
+
 protected:
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_for_width_vfunc(int assigned_width, int& minimum_height, int& natural_height) const  override;
@@ -37,6 +47,16 @@ protected:
     std::vector<TerminalChar> screen_buffer;
 
     int width, height, font_width, font_height;
+
+    FT_Library ft_lib;
+    FT_Face terminal_face;
+    Cairo::RefPtr<Cairo::FtFontFace> terminal_font;
+
+    lua_State *l;
 };
+
+//typedef int (TerminalWidget::*memfunc)(lua_State *L);
+//template <memfunc F>
+//int lua_dispatch(lua_State* l);
 
 #endif //BLACKHAT_TERMINAL_H
