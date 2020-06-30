@@ -9,11 +9,12 @@ typedef int (Program::*memfunc)(lua_State *L);
 
 Program::Program(const std::string& program_path, TerminalWidget* parent) : parent(parent), L(luaL_newstate()) {
     luaL_openlibs(L);
+    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
+    lua_setglobal(L, "put_char");
     *static_cast<Program**>(lua_getextraspace(L)) = this;
     if (luaL_dofile(L, program_path.c_str()) != 0) {
-        std::cerr << "Invalid file given to program!" << std::endl;
+        std::cerr << lua_error(L) << std::endl;
     }
-    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
 }
 
 template<memfunc func>
@@ -43,7 +44,12 @@ bool Program::start() {
     if (!lua_isfunction(L, -1)) {
         return false;
     }
-    return lua_pcall(L, 0, 0, 0) == 0;
+
+    if (lua_pcall(L, 0, 0, 0) != 0) {
+        std::cerr << lua_error(L) << std::endl;
+        return false;
+    }
+    return true;
 }
 
 int Program::add_rows(lua_State *L) {

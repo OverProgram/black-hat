@@ -6,7 +6,7 @@
 
 BlackHat::BlackHat() {
     set_border_width(10);
-    terminal = new TerminalWidget("/home/tomer/BlackHat/resources/lua/bash.lua", 16, 16);
+    terminal = new TerminalWidget("/home/tomer/BlackHat/resources/lua/bash.lua", 50, 22);
     add(*terminal);
     terminal->show();
 }

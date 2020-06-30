@@ -31,7 +31,7 @@ class Program;
 
 class TerminalWidget : public Gtk::Widget {
 public:
-    TerminalWidget(const std::string& program_path, int width, int height, int font_width = 16, int font_height = 8);
+    TerminalWidget(const std::string& program_path, int width, int height, int font_width = 8, int font_height = 16);
     ~TerminalWidget() override;
 
     void add_rows(int rows = 1);

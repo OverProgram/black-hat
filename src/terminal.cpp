@@ -84,7 +84,8 @@ void TerminalWidget::on_realize() {
 bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     const Gtk::Allocation allocation = get_allocation();
     cr->set_font_face(terminal_font);
-
+    cr->set_font_matrix(Cairo::scaling_matrix(font_width, font_height));
+    double px, py;
     for (int y = 0; y < this->height; y++) {
         int loc_y = y * font_height;
         for (int x = 0; x < this->width; x++) {
@@ -92,16 +93,20 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
             int loc_x = x * font_width;
             TerminalChar tchar = screen_buffer[index];
             cr->move_to(loc_x, loc_y);
-            cr->set_source_rgb(tchar.bg.r, tchar.bg.g, tchar.bg.b);
-//            cr->set_source_rgb(0, 0, 0);
+            cr->set_source_rgb((double)(tchar.bg.r)/255., (double)(tchar.bg.g)/255., (double)(tchar.bg.b)/255.);
             cr->rectangle(loc_x, loc_y, font_width, font_height);
             cr->fill();
-//            cr->set_source_rgb(tchar.fg.r, tchar.fg.g, tchar.fg.b);
-//            cr->show_text(std::string(tchar.character, 1));
+            cr->set_source_rgb((double)(tchar.fg.r)/255., (double)(tchar.fg.g)/255., (double)(tchar.fg.b)/255.);
+            cr->set_source_rgb(1, 1, 255);
+            cr->get_current_point(px, py);
+            std::string str(1, tchar.character);
+            cr->move_to(loc_x, loc_y + font_height);
+            cr->text_path(str);
+            cr->fill();
         }
     }
 
-    cr->stroke();
+//    cr->stroke();
     return true;
 }
 
