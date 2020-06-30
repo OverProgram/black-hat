@@ -18,6 +18,7 @@ public:
     ~Program();
 
     void on_keypress(char key);
+    bool start();
 
 protected:
     lua_State *L;
@@ -26,6 +27,9 @@ protected:
     typedef int (Program::*memfunc)(lua_State *L);
     template <memfunc func>
     static int lua_dispatch(lua_State *L);
+
+    int put_char(lua_State* L);
+    int add_rows(lua_State* L);
 };
 
 

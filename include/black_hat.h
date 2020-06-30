@@ -7,6 +7,9 @@
 
 #include <gtkmm/window.h>
 #include <gtkmm/button.h>
+#include <gtkmm.h>
+#include "program.h"
+#include "terminal.h"
 
 class BlackHat : public Gtk::Window {
 public:
@@ -16,7 +19,7 @@ public:
 protected:
     void on_button_click();
 
-    Gtk::Button button;
+    TerminalWidget *terminal;
 };
 
 #endif //BLACKHAT_BLACK_HAT_H

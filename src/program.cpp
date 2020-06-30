@@ -10,7 +10,10 @@ typedef int (Program::*memfunc)(lua_State *L);
 Program::Program(const std::string& program_path, TerminalWidget* parent) : parent(parent), L(luaL_newstate()) {
     luaL_openlibs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
-    luaL_dofile(L, program_path.c_str());
+    if (luaL_dofile(L, program_path.c_str()) != 0) {
+        std::cerr << "Invalid file given to program!" << std::endl;
+    }
+    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
 }
 
 template<memfunc func>
@@ -33,4 +36,29 @@ void Program::on_keypress(char key) {
     if (lua_pcall(L, 1, 0, 0) != 0) {
         std::cerr << "Invalid on_keypress function!" << std::endl;
     }
+}
+
+bool Program::start() {
+    lua_getglobal(L, "main");
+    if (!lua_isfunction(L, -1)) {
+        return false;
+    }
+    return lua_pcall(L, 0, 0, 0) == 0;
+}
+
+int Program::add_rows(lua_State *L) {
+    int rows = luaL_checkinteger(L, 1);
+    parent->add_rows(rows);
+    return 0;
+}
+
+int Program::put_char(lua_State *L) {
+    char character = *luaL_checkstring(L, 1);
+    int x = luaL_checknumber(L, 2);
+    int y = luaL_checknumber(L, 3);
+
+    TerminalChar c{character, {0, 0, 0}, {255, 255, 255}};
+    parent->put_char(c, x, y);
+
+    return 0;
 }

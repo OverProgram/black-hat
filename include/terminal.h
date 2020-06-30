@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <functional>
+#include <stack>
 
 struct Color {
     float r, g, b;
@@ -26,12 +27,16 @@ struct TerminalChar {
     Color bg, fg;
 };
 
+class Program;
+
 class TerminalWidget : public Gtk::Widget {
 public:
-    TerminalWidget(int width, int height, int font_width = 16, int font_height = 8);
+    TerminalWidget(const std::string& program_path, int width, int height, int font_width = 16, int font_height = 8);
     ~TerminalWidget() override;
 
     void add_rows(int rows = 1);
+    void execute(Program program);
+    void put_char(TerminalChar tchar, int x, int y);
 
 protected:
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
@@ -52,11 +57,8 @@ protected:
     FT_Face terminal_face;
     Cairo::RefPtr<Cairo::FtFontFace> terminal_font;
 
-    lua_State *l;
+    std::stack<Program> program_stack;
+    Program *p;
 };
-
-//typedef int (TerminalWidget::*memfunc)(lua_State *L);
-//template <memfunc F>
-//int lua_dispatch(lua_State* l);
 
 #endif //BLACKHAT_TERMINAL_H

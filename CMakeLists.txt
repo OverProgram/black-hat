@@ -6,13 +6,14 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
+pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
+pkg_check_modules(BROTLI REQUIRED libbrotlidec)
 
 find_package(Lua REQUIRED)
-
-include_directories(include)
-include_directories(${GTKMM_INCLUDE_DIRS})
-include_directories(${LUA_INCLUDE_DIR})
+find_package(Freetype REQUIRED)
+find_package(PNG REQUIRED)
 
 add_executable(BlackHat src/main.cpp include/black_hat.h src/black_hat.cpp include/terminal.h src/terminal.cpp include/program.h src/program.cpp)
 
-target_link_libraries(BlackHat ${GTKMM_LIBRARIES} ${LUA_LIBRARIES})
+target_link_libraries(BlackHat ${GTKMM_LIBRARIES} ${LUA_LIBRARIES} ${FREETYPE_LIBRARIES} ${HARFBUZZ_LIBRARIES} ${PNG_LIBRARIES} ${BROTLI_LIBRARIES})
+target_include_directories(BlackHat PRIVATE include ${GTKMM_INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})

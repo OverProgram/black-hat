@@ -2,26 +2,30 @@
 // Created by tomer on 28/06/2020.
 //
 #include "terminal.h"
+#include "program.h"
 
 #include <string>
 
-//template <memfunc F>
-//int lua_dispatch(lua_State* l) {
-//    TerminalWidget *ptr = *static_cast<TerminalWidget**>(lua_getextraspace(l));
-//    return ((*ptr).*F)(l);
-//}
-
-TerminalWidget::TerminalWidget(int width, int height, int font_width, int font_height) : Glib::ObjectBase("terminal"), Gtk::Widget(),
-screen_buffer(width * height), width(width), height(height), font_width(font_width), font_height(font_height), refWindow(nullptr),
-ft_lib(), terminal_face(), terminal_font(), l(luaL_newstate()) {
+TerminalWidget::TerminalWidget(const std::string& program_path, int width, int height, int font_width, int font_height)
+    : Glib::ObjectBase("terminal")
+    , Gtk::Widget()
+    , screen_buffer(width * height)
+    , width(width)
+    , height(height)
+    , font_width(font_width)
+    , font_height(font_height)
+    , refWindow(nullptr)
+    , ft_lib()
+    , terminal_face()
+    , terminal_font() {
     set_has_window(true);
     set_name("terminal");
     FT_Init_FreeType(&ft_lib);
     FT_New_Face(ft_lib, "/home/tomer/BlackHat/resources/Perfect DOS VGA 437.ttf", 0, &terminal_face);
     FT_Set_Pixel_Sizes(terminal_face, font_width, font_height);
     terminal_font = Cairo::FtFontFace::create(terminal_face, 0);
-    luaL_openlibs(l);
-    *static_cast<TerminalWidget**>(lua_getextraspace(l)) = this;
+    p = new Program(program_path, this);
+    p->start();
 }
 
 void TerminalWidget::get_preferred_width_vfunc(int &minimum_width, int &natural_width) const {
@@ -55,7 +59,7 @@ void TerminalWidget::on_size_allocate(Gtk::Allocation &allocation) {
 }
 
 void TerminalWidget::on_realize() {
-    Widget::on_realize();
+    set_realized();
 
     if (!refWindow) {
         GdkWindowAttr attributes = {};
@@ -89,9 +93,11 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
             TerminalChar tchar = screen_buffer[index];
             cr->move_to(loc_x, loc_y);
             cr->set_source_rgb(tchar.bg.r, tchar.bg.g, tchar.bg.b);
+//            cr->set_source_rgb(0, 0, 0);
             cr->rectangle(loc_x, loc_y, font_width, font_height);
-            cr->set_source_rgb(tchar.fg.r, tchar.fg.g, tchar.fg.b);
-            cr->show_text(std::string(tchar.character, 1));
+            cr->fill();
+//            cr->set_source_rgb(tchar.fg.r, tchar.fg.g, tchar.fg.b);
+//            cr->show_text(std::string(tchar.character, 1));
         }
     }
 
@@ -101,6 +107,16 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
 
 void TerminalWidget::add_rows(int rows) {
     screen_buffer.resize(screen_buffer.size() + rows);
+}
+
+void TerminalWidget::execute(Program program) {
+    program_stack.push(program);
+    program.start();
+}
+
+void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
+    int index = y * width + x;
+    screen_buffer[index] = tchar;
 }
 
 TerminalWidget::~TerminalWidget() = default;

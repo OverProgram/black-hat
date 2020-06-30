@@ -4,13 +4,11 @@
 #include "black_hat.h"
 #include <gtkmm/messagedialog.h>
 
-BlackHat::BlackHat() : button("Hello world"){
+BlackHat::BlackHat() {
     set_border_width(10);
-
-    button.signal_clicked().connect(sigc::mem_fun(*this, &BlackHat::on_button_click));
-    add(button);
-
-    button.show();
+    terminal = new TerminalWidget("/home/tomer/BlackHat/resources/lua/bash.lua", 16, 16);
+    add(*terminal);
+    terminal->show();
 }
 
 BlackHat::~BlackHat() = default;
