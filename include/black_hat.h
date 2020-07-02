@@ -17,11 +17,6 @@ public:
     virtual ~BlackHat();
 
 protected:
-    void on_button_click();
-
-
-//    bool on_key_press_event(GdkEventKey *key_event) override;
-
     TerminalWidget *terminal;
 };
 

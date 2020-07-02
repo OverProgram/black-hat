@@ -119,7 +119,6 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
         }
     }
 
-//    cr->stroke();
     return true;
 }
 
@@ -140,7 +139,6 @@ void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
 
 bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
     std::string key = std::string(gdk_keyval_name(key_event->keyval));
-    std::cout << key << "AHHHHHHH" << std::endl;
     auto handler = keypress_handler_stack.top();
     programs[handler.program_id]->on_keypress(handler.func_name, key[0]);
     return true;

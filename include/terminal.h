@@ -66,8 +66,6 @@ protected:
     FT_Face terminal_face;
     Cairo::RefPtr<Cairo::FtFontFace> terminal_font;
 
-//    std::stack<Program> program_stack;
-//    Program *p;
     std::vector<std::shared_ptr<Program>> programs;
 
     std::stack<KeypressHandler> keypress_handler_stack;

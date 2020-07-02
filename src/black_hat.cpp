@@ -17,13 +17,3 @@ BlackHat::BlackHat() {
 }
 
 BlackHat::~BlackHat() = default;
-
-void BlackHat::on_button_click() {
-    Gtk::MessageDialog dialog(*this, "Hello, world!");
-    dialog.run();
-}
-
-//bool BlackHat::on_key_press_event(GdkEventKey *key_event) {
-//    std::cout << "AHHHHHHHH" << std::endl;
-//    return false;
-//}
