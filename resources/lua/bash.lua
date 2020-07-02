@@ -8,5 +8,5 @@ function main()
 end
 
 function on_keypress(chr)
-    put_char("H", 0, 0)
+    put_char(chr, 0, 0)
 end

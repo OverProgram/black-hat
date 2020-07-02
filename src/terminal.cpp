@@ -5,6 +5,7 @@
 #include "program.h"
 
 #include <string>
+#include <iostream>
 
 TerminalWidget::TerminalWidget(const std::string& program_path, int width, int height, int font_width, int font_height)
     : Glib::ObjectBase("terminal")
@@ -33,7 +34,9 @@ TerminalWidget::TerminalWidget(const std::string& program_path, int width, int h
     programs.push_back(std::make_shared<Program>(program_path, this, 0));
     programs.back()->start();
 
-    add_events(Gdk::KEY_PRESS_MASK);
+//    add_events(Gdk::KEY_PRESS_MASK);
+    set_can_focus(true);
+    grab_focus();
 }
 
 void TerminalWidget::get_preferred_width_vfunc(int &minimum_width, int &natural_width) const {
@@ -137,6 +140,7 @@ void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
 
 bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
     std::string key = std::string(gdk_keyval_name(key_event->keyval));
+    std::cout << key << "AHHHHHHH" << std::endl;
     auto handler = keypress_handler_stack.top();
     programs[handler.program_id]->on_keypress(handler.func_name, key[0]);
     return true;
