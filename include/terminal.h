@@ -7,6 +7,7 @@
 
 #include <gtkmm/widget.h>
 #include <gtkmm/window.h>
+#include <gtkmm.h>
 #include <cairo.h>
 
 #include <ft2build.h>
@@ -35,10 +36,16 @@ public:
     ~TerminalWidget() override;
 
     void add_rows(int rows = 1);
-    void execute(Program program);
+//    void execute(Program program);
     void put_char(TerminalChar tchar, int x, int y);
+    void register_keypress(int program_id, const std::string& func_name);
 
 protected:
+    struct KeypressHandler {
+        int program_id;
+        std::string func_name;
+    };
+
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_for_width_vfunc(int assigned_width, int& minimum_height, int& natural_height) const  override;
     void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const override;
@@ -46,6 +53,8 @@ protected:
     void on_size_allocate(Gtk::Allocation& allocation) override;
     void on_realize() override;
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+
+    bool on_key_press_event(GdkEventKey* key_event) override;
 
     Glib::RefPtr<Gdk::Window> refWindow;
 
@@ -57,8 +66,11 @@ protected:
     FT_Face terminal_face;
     Cairo::RefPtr<Cairo::FtFontFace> terminal_font;
 
-    std::stack<Program> program_stack;
-    Program *p;
+//    std::stack<Program> program_stack;
+//    Program *p;
+    std::vector<std::shared_ptr<Program>> programs;
+
+    std::stack<KeypressHandler> keypress_handler_stack;
 };
 
 #endif //BLACKHAT_TERMINAL_H

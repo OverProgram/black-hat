@@ -21,11 +21,19 @@ TerminalWidget::TerminalWidget(const std::string& program_path, int width, int h
     set_has_window(true);
     set_name("terminal");
     FT_Init_FreeType(&ft_lib);
-    FT_New_Face(ft_lib, "/home/tomer/BlackHat/resources/Perfect DOS VGA 437.ttf", 0, &terminal_face);
-    FT_Set_Pixel_Sizes(terminal_face, font_width, font_height);
+    FT_New_Face(ft_lib, "/home/tomer/BlackHat/resources/iv8x16u.bdf", 0, &terminal_face);
+//    FT_Set_Pixel_Sizes(terminal_face, font_width, font_height);
+//    FT_Set_Char_Size(terminal_face, font_width * 64, font_height * 64, 300, 300);
     terminal_font = Cairo::FtFontFace::create(terminal_face, 0);
-    p = new Program(program_path, this);
-    p->start();
+//    font_height = 16;
+//    font_width = 8;
+//    p =
+//    p->start();
+
+    programs.push_back(std::make_shared<Program>(program_path, this, 0));
+    programs.back()->start();
+
+    add_events(Gdk::KEY_PRESS_MASK);
 }
 
 void TerminalWidget::get_preferred_width_vfunc(int &minimum_width, int &natural_width) const {
@@ -82,9 +90,11 @@ void TerminalWidget::on_realize() {
 }
 
 bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
-    const Gtk::Allocation allocation = get_allocation();
     cr->set_font_face(terminal_font);
-    cr->set_font_matrix(Cairo::scaling_matrix(font_width, font_height));
+    float scale_x = (float)(font_width)/8.0f;
+    float scale_y = (float)(font_height)/16.0f;
+    auto scale_matrix = Cairo::scaling_matrix(scale_x * 10, scale_y * 10);
+    cr->set_font_matrix(scale_matrix);
     double px, py;
     for (int y = 0; y < this->height; y++) {
         int loc_y = y * font_height;
@@ -100,7 +110,7 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
             cr->set_source_rgb(1, 1, 255);
             cr->get_current_point(px, py);
             std::string str(1, tchar.character);
-            cr->move_to(loc_x, loc_y + font_height);
+            cr->move_to(loc_x, loc_y + (font_height/2));
             cr->text_path(str);
             cr->fill();
         }
@@ -114,14 +124,27 @@ void TerminalWidget::add_rows(int rows) {
     screen_buffer.resize(screen_buffer.size() + rows);
 }
 
-void TerminalWidget::execute(Program program) {
-    program_stack.push(program);
-    program.start();
-}
+//void TerminalWidget::execute(Program program) {
+//    program_stack.push(program);
+//    program.start();
+//}
 
 void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
     int index = y * width + x;
     screen_buffer[index] = tchar;
+    queue_draw();
+}
+
+bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
+    std::string key = std::string(gdk_keyval_name(key_event->keyval));
+    auto handler = keypress_handler_stack.top();
+    programs[handler.program_id]->on_keypress(handler.func_name, key[0]);
+    return true;
+}
+
+void TerminalWidget::register_keypress(int program_id, const std::string& func_name) {
+    KeypressHandler handler{program_id, func_name};
+    keypress_handler_stack.push(handler);
 }
 
 TerminalWidget::~TerminalWidget() = default;

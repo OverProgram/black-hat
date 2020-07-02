@@ -7,10 +7,12 @@
 
 typedef int (Program::*memfunc)(lua_State *L);
 
-Program::Program(const std::string& program_path, TerminalWidget* parent) : parent(parent), L(luaL_newstate()) {
+Program::Program(const std::string& program_path, TerminalWidget* parent, int id) : parent(parent), L(luaL_newstate()), id(id) {
     luaL_openlibs(L);
     lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
     lua_setglobal(L, "put_char");
+    lua_pushcfunction(L, &lua_dispatch<&Program::register_keypress>);
+    lua_setglobal(L, "register_keypress");
     *static_cast<Program**>(lua_getextraspace(L)) = this;
     if (luaL_dofile(L, program_path.c_str()) != 0) {
         std::cerr << lua_error(L) << std::endl;
@@ -27,8 +29,8 @@ Program::~Program() {
     lua_close(L);
 }
 
-void Program::on_keypress(char key) {
-    lua_getglobal(L, "on_keypress");
+void Program::on_keypress(const std::string& func_name, char key) {
+    lua_getglobal(L, func_name.c_str());
     if (!lua_isfunction(L, -1)) {
         return;
     }
@@ -65,6 +67,14 @@ int Program::put_char(lua_State *L) {
 
     TerminalChar c{character, {0, 0, 0}, {255, 255, 255}};
     parent->put_char(c, x, y);
+
+    return 0;
+}
+
+int Program::register_keypress(lua_State *L) {
+    std::string func_name(luaL_checkstring(L, 1));
+
+    parent->register_keypress(id, func_name);
 
     return 0;
 }

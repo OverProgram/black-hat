@@ -14,15 +14,19 @@
 
 class Program {
 public:
-    Program(const std::string& program_path, TerminalWidget* parent);
+    Program(const std::string& program_path, TerminalWidget* parent, int id);
     ~Program();
 
-    void on_keypress(char key);
+    void on_keypress(const std::string& func_name, char key);
     bool start();
 
 protected:
     lua_State *L;
     TerminalWidget *parent;
+
+    int id;
+
+//    std::string keypress_func;
 
     typedef int (Program::*memfunc)(lua_State *L);
     template <memfunc func>
@@ -30,6 +34,7 @@ protected:
 
     int put_char(lua_State* L);
     int add_rows(lua_State* L);
+    int register_keypress(lua_State *L);
 };
 
 
