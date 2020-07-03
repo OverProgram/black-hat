@@ -14,7 +14,7 @@
 class BlackHat : public Gtk::Window {
 public:
     BlackHat();
-    virtual ~BlackHat();
+    ~BlackHat() override;
 
 protected:
     TerminalWidget *terminal;

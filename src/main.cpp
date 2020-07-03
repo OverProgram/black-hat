@@ -1,6 +1,5 @@
 #include <gtkmm.h>
 #include "black_hat.h"
-//#include <cairo.h>
 
 int main(int argc, char *argv[]) {
     auto app = Gtk::Application::create(argc, argv, "com.blackhat.blackhat");
