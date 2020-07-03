@@ -23,18 +23,11 @@ TerminalWidget::TerminalWidget(const std::string& program_path, int width, int h
     set_name("terminal");
     FT_Init_FreeType(&ft_lib);
     FT_New_Face(ft_lib, "/home/tomer/BlackHat/resources/iv8x16u.bdf", 0, &terminal_face);
-//    FT_Set_Pixel_Sizes(terminal_face, font_width, font_height);
-//    FT_Set_Char_Size(terminal_face, font_width * 64, font_height * 64, 300, 300);
     terminal_font = Cairo::FtFontFace::create(terminal_face, 0);
-//    font_height = 16;
-//    font_width = 8;
-//    p =
-//    p->start();
 
     programs.push_back(std::make_shared<Program>(program_path, this, 0));
     programs.back()->start();
 
-//    add_events(Gdk::KEY_PRESS_MASK);
     set_can_focus(true);
     grab_focus();
 }
@@ -147,6 +140,11 @@ bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
 void TerminalWidget::register_keypress(int program_id, const std::string& func_name) {
     KeypressHandler handler{program_id, func_name};
     keypress_handler_stack.push(handler);
+}
+
+void TerminalWidget::get_size(int &width_ptr, int &height_ptr) const {
+    width_ptr = this->width;
+    height_ptr = this->height;
 }
 
 TerminalWidget::~TerminalWidget() = default;

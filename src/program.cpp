@@ -9,10 +9,11 @@ typedef int (Program::*memfunc)(lua_State *L);
 
 Program::Program(const std::string& program_path, TerminalWidget* parent, int id) : parent(parent), L(luaL_newstate()), id(id) {
     luaL_openlibs(L);
-    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
-    lua_setglobal(L, "put_char");
-    lua_pushcfunction(L, &lua_dispatch<&Program::register_keypress>);
-    lua_setglobal(L, "register_keypress");
+//    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
+//    lua_setglobal(L, "put_char");
+//    lua_pushcfunction(L, &lua_dispatch<&Program::register_keypress>);
+//    lua_setglobal(L, "register_keypress");
+    set_libs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
     if (luaL_dofile(L, program_path.c_str()) != 0) {
         std::cerr << lua_error(L) << std::endl;
@@ -77,4 +78,32 @@ int Program::register_keypress(lua_State *L) {
     parent->register_keypress(id, func_name);
 
     return 0;
+}
+
+void Program::set_libs(lua_State *L) {
+    for (const luaL_Reg *lib = loaded_libs; lib->func != nullptr; lib++) {
+        luaL_requiref(L, lib->name, lib->func, 1);
+        lua_pop(L, 1);
+    }
+    lua_newtable(L);
+    set_field<&Program::put_char>(L, "put_char");
+    set_field<&Program::register_keypress>(L, "register_keypress");
+    set_field<&Program::get_size>(L, "get_size");
+    set_field<&Program::add_rows>(L, "add_rows");
+    lua_setglobal(L, "terminal");
+}
+
+template <memfunc func>
+void Program::set_field(lua_State *L, const std::string& name) {
+    lua_pushstring(L, name.c_str());
+    lua_pushcfunction(L, &lua_dispatch<func>);
+    lua_settable(L, -3);
+}
+
+int Program::get_size(lua_State *L) {
+    int width, height;
+    parent->get_size(width, height);
+    lua_pushnumber(L, width);
+    lua_pushnumber(L, height);
+    return 2;
 }

@@ -39,6 +39,7 @@ public:
 //    void execute(Program program);
     void put_char(TerminalChar tchar, int x, int y);
     void register_keypress(int program_id, const std::string& func_name);
+    void get_size(int &width_ptr, int &height_ptr) const;
 
 protected:
     struct KeypressHandler {
