@@ -9,10 +9,6 @@ typedef int (Program::*memfunc)(lua_State *L);
 
 Program::Program(const std::string& program_path, TerminalWidget* parent, int id) : parent(parent), L(luaL_newstate()), id(id) {
     luaL_openlibs(L);
-//    lua_pushcfunction(L, &lua_dispatch<&Program::put_char>);
-//    lua_setglobal(L, "put_char");
-//    lua_pushcfunction(L, &lua_dispatch<&Program::register_keypress>);
-//    lua_setglobal(L, "register_keypress");
     set_libs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
     if (luaL_dofile(L, program_path.c_str()) != 0) {
@@ -43,16 +39,17 @@ void Program::on_keypress(const std::string& func_name, char key) {
 }
 
 bool Program::start() {
-    lua_getglobal(L, "main");
-    if (!lua_isfunction(L, -1)) {
-        return false;
-    }
-
-    if (lua_pcall(L, 0, 0, 0) != 0) {
-        std::cerr << lua_error(L) << std::endl;
-        return false;
-    }
-    return true;
+//    lua_getglobal(L, "main");
+//    if (!lua_isfunction(L, -1)) {
+//        return false;
+//    }
+//
+//    if (lua_pcall(L, 0, 0, 0) != 0) {
+//        std::cerr << lua_error(L) << std::endl;
+//        return false;
+//    }
+//    return true;
+    return call_func("main");
 }
 
 int Program::add_rows(lua_State *L) {
@@ -106,4 +103,16 @@ int Program::get_size(lua_State *L) {
     lua_pushnumber(L, width);
     lua_pushnumber(L, height);
     return 2;
+}
+
+bool Program::call_func(const std::string& func_name) {
+    lua_getglobal(L, func_name.c_str());
+    if (!lua_isfunction(L, -1)) {
+        return false;
+    }
+    if (lua_pcall(L, 0, 0, 0) != 0) {
+        std::cerr << lua_error(L) << std::endl;
+        return false;
+    }
+    return true;
 }

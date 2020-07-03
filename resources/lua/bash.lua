@@ -11,7 +11,7 @@ function inc_cursor()
 end
 
 function print_char(chr)
-    if chr == '\n' then
+    if chr == string.char(10) then
         cursor_y = cursor_y + 1
     elseif chr == ' ' then
         inc_cursor()

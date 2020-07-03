@@ -18,15 +18,15 @@ public:
     ~Program();
 
     void on_keypress(const std::string& func_name, char key);
+
     bool start();
+    bool call_func(const std::string& func_name);
 
 protected:
     lua_State *L;
     TerminalWidget *parent;
 
     int id;
-
-//    std::string keypress_func;
 
     typedef int (Program::*memfunc)(lua_State *L);
     template <memfunc func>

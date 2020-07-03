@@ -5,7 +5,6 @@
 #include "program.h"
 
 #include <string>
-#include <iostream>
 
 TerminalWidget::TerminalWidget(const std::string& program_path, int width, int height, int font_width, int font_height)
     : Glib::ObjectBase("terminal")
@@ -130,10 +129,25 @@ void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
     queue_draw();
 }
 
+char TerminalWidget::keyval_to_char(unsigned int keyval) {
+    switch(keyval) {
+        case GDK_KEY_Return:
+            return '\n';
+        case GDK_KEY_space:
+            return ' ';
+        case GDK_KEY_BackSpace:
+            return '\b';
+        case GDK_KEY_Tab:
+            return '\t';
+        default:
+            return std::string(gdk_keyval_name(keyval))[0];
+    }
+}
+
 bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
-    std::string key = std::string(gdk_keyval_name(key_event->keyval));
+    char key = keyval_to_char(key_event->keyval);
     auto handler = keypress_handler_stack.top();
-    programs[handler.program_id]->on_keypress(handler.func_name, key[0]);
+    programs[handler.program_id]->on_keypress(handler.func_name, key);
     return true;
 }
 
