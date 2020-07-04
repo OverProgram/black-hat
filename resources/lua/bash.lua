@@ -6,7 +6,8 @@ function new_line()
     cursor_x = 0
     cursor_y = cursor_y + 1
     if cursor_y == height then
-        cursor_y = height - 1
+        terminal.add_rows(1)
+        height = height + 1
     end
 end
 

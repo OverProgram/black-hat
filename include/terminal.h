@@ -26,6 +26,9 @@ struct Color {
 struct TerminalChar {
     char character;
     Color bg, fg;
+
+    TerminalChar();
+    ~TerminalChar() = default;
 };
 
 class Program;
@@ -60,7 +63,7 @@ protected:
 
     Glib::RefPtr<Gdk::Window> refWindow;
 
-    std::vector<TerminalChar> screen_buffer;
+    std::vector<std::unique_ptr<TerminalChar>> screen_buffer;
 
     int width, height, font_width, font_height;
 

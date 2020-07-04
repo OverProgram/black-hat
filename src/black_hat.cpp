@@ -2,14 +2,15 @@
 // Created by tomer on 28/06/2020.
 //
 #include "black_hat.h"
-#include <gtkmm/messagedialog.h>
 #include <iostream>
 
 BlackHat::BlackHat() {
     set_border_width(10);
-    terminal = new TerminalWidget("/home/tomer/BlackHat/resources/lua/bash.lua", 50, 22, 16, 32);
-    add(*terminal);
-    terminal->show();
+    window = new Gtk::ScrolledWindow(Gtk::Adjustment::create(0, 0, 1), Gtk::Adjustment::create(0, 0, 10));
+    terminal = new TerminalWidget("/home/tomer/BlackHat/resources/lua/bash.lua", 8, 8, 16, 32);
+    window->add(*terminal);
+    add(*window);
+    show_all_children();
 
 //    add_events(Gdk::KEY_PRESS_MASK);
 

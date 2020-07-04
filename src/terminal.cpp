@@ -9,7 +9,7 @@
 TerminalWidget::TerminalWidget(const std::string& program_path, int width, int height, int font_width, int font_height)
     : Glib::ObjectBase("terminal")
     , Gtk::Widget()
-    , screen_buffer(width * height)
+    , screen_buffer(width * height, std::make_unique<TerminalChar>())
     , width(width)
     , height(height)
     , font_width(font_width)
@@ -26,6 +26,8 @@ TerminalWidget::TerminalWidget(const std::string& program_path, int width, int h
 
     programs.push_back(std::make_shared<Program>(program_path, this, 0));
     programs.back()->start();
+
+//    screen_buffer.reserve(100);
 
     set_can_focus(true);
     grab_focus();
@@ -96,7 +98,7 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
         for (int x = 0; x < this->width; x++) {
             int index = y * this->width + x;
             int loc_x = x * font_width;
-            TerminalChar tchar = screen_buffer[index];
+            TerminalChar tchar = *screen_buffer[index];
             cr->move_to(loc_x, loc_y);
             cr->set_source_rgb((double)(tchar.bg.r)/255., (double)(tchar.bg.g)/255., (double)(tchar.bg.b)/255.);
             cr->rectangle(loc_x, loc_y, font_width, font_height);
@@ -115,7 +117,12 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
 }
 
 void TerminalWidget::add_rows(int rows) {
-    screen_buffer.resize(screen_buffer.size() + rows);
+    screen_buffer.resize(screen_buffer.size() + rows * width, std::make_unique<TerminalChar>());
+//    for (int i = 0; i < rows * width; i++) {
+//        screen_buffer.push_back(new TerminalChar());
+//    }
+    height += rows;
+    queue_resize();
 }
 
 //void TerminalWidget::execute(Program program) {
@@ -125,7 +132,8 @@ void TerminalWidget::add_rows(int rows) {
 
 void TerminalWidget::put_char(TerminalChar tchar, int x, int y) {
     int index = y * width + x;
-    screen_buffer[index] = tchar;
+//    auto new_tchar = new TerminalChar(tchar);
+    screen_buffer[index] = std::make_unique<TerminalChar>(tchar);
     queue_draw();
 }
 
@@ -162,3 +170,5 @@ void TerminalWidget::get_size(int &width_ptr, int &height_ptr) const {
 }
 
 TerminalWidget::~TerminalWidget() = default;
+
+TerminalChar::TerminalChar() : character('\0'), fg({255, 2555, 255}), bg({0, 0, 0}) {}

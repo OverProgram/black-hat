@@ -18,6 +18,7 @@ public:
 
 protected:
     TerminalWidget *terminal;
+    Gtk::ScrolledWindow *window;
 };
 
 #endif //BLACKHAT_BLACK_HAT_H

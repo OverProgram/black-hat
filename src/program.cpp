@@ -34,7 +34,7 @@ void Program::on_keypress(const std::string& func_name, char key) {
 
     lua_pushstring(L, &key);
     if (lua_pcall(L, 1, 0, 0) != 0) {
-        std::cerr << "Invalid on_keypress function!" << std::endl;
+        std::cerr << "Error on keypress func: " << lua_error(L) << std::endl;
     }
 }
 
