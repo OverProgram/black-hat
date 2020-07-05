@@ -24,13 +24,13 @@ int Program::lua_dispatch(lua_State *L) {
     return ((*ptr).*func)(L);
 }
 
-//Program::~Program() {
-//    lua_close(L);
+Program::~Program() {
+    lua_close(L);
 //    if (parent_terminal.use_count() > 0) {
 //        delete parent_terminal.get();
 //    }
-//}
-Program::~Program() = default;
+}
+//Program::~Program() = default;
 
 void Program::on_keypress(const std::string& func_name, char key) {
     lua_getglobal(L, func_name.c_str());
