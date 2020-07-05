@@ -17,7 +17,7 @@ class TerminalWidget;
 
 class Program {
 public:
-    Program(const std::string& program_path, std::shared_ptr<BHInstance> parent, int parent_handle, int id);
+    Program(const std::string& program_path, BHInstance* parent, int parent_handle, int id);
     ~Program();
 
     void on_keypress(const std::string& func_name, char key);
@@ -27,8 +27,10 @@ public:
 
 protected:
     lua_State *L;
-    std::shared_ptr<TerminalWidget> parent_terminal;
-    std::shared_ptr<BHInstance> parent;
+//    std::shared_ptr<TerminalWidget> parent_terminal;
+//    std::shared_ptr<BHInstance> parent;
+    BHInstance* parent;
+    int parent_terminal_handle;
 
 
     int id;

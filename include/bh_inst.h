@@ -43,7 +43,7 @@ private:
 
     std::map<std::string, std::string> env_vars;
 
-    std::shared_ptr<BHInstance> this_ptr;
+//    std::shared_ptr<BHInstance> this_ptr;
 };
 
 #endif //BLACKHAT_BH_INST_H

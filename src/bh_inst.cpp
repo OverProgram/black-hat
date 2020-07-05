@@ -5,9 +5,8 @@
 
 #include <utility>
 
-BHInstance::BHInstance() : last_added_program_index(0), last_added_terminal_index(0), this_ptr(this) {}
+BHInstance::BHInstance() : last_added_program_index(0), last_added_terminal_index(0) {}
 
-//TODO: Why tf does this crash???
 BHInstance::~BHInstance() = default;
 
 int BHInstance::add_program(const std::string& path, int parent_handle) {
@@ -18,7 +17,7 @@ int BHInstance::add_program(const std::string& path, int parent_handle) {
         index = free_program_indices.top();
         free_program_indices.pop();
     }
-    programs[index] = std::make_shared<Program>(path, this_ptr, parent_handle, index);
+    programs[index] = std::make_shared<Program>(path, this, parent_handle, index);
     return index;
 }
 
@@ -48,7 +47,7 @@ int BHInstance::add_terminal(const std::string& program_path, int width, int hei
         index = free_terminal_indices.top();
         free_terminal_indices.pop();
     }
-    terminals[index] = std::make_shared<TerminalWidget>(this_ptr, index, width, height, font_width, font_height);
+    terminals[index] = std::make_shared<TerminalWidget>(this, index, width, height, font_width, font_height);
     terminals[index]->run(program_path);
     return index;
 }

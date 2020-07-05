@@ -38,7 +38,7 @@ class BHInstance;
 
 class TerminalWidget : public Gtk::Widget {
 public:
-    TerminalWidget(std::shared_ptr<BHInstance>& parent_inst, int handle, int width, int height, int font_width = 8, int font_height = 16);
+    TerminalWidget(BHInstance* parent_inst, int handle, int width, int height, int font_width = 8, int font_height = 16);
     ~TerminalWidget() override;
 
     void run(const std::string& program_path);
@@ -66,7 +66,8 @@ protected:
     static char keyval_to_char(unsigned int keyval);
     bool on_key_press_event(GdkEventKey* key_event) override;
 
-    std::shared_ptr<BHInstance> parent_inst;
+//    std::shared_ptr<BHInstance> parent_inst;
+    BHInstance* parent_inst;
     int handle;
 
     Glib::RefPtr<Gdk::Window> refWindow;

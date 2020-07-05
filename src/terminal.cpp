@@ -6,7 +6,7 @@
 
 #include <string>
 
-TerminalWidget::TerminalWidget(std::shared_ptr<BHInstance>& parent_inst, int handle, int width, int height, int font_width, int font_height)
+TerminalWidget::TerminalWidget(BHInstance* parent_inst, int handle, int width, int height, int font_width, int font_height)
     : Glib::ObjectBase("terminal")
     , Gtk::Widget()
     , screen_buffer(width * height)
@@ -181,8 +181,6 @@ void TerminalWidget::get_size(int &width_ptr, int &height_ptr) const {
     height_ptr = this->height;
 }
 
-TerminalWidget::~TerminalWidget() {
-    parent_inst->remove_program(handle);
-}
+TerminalWidget::~TerminalWidget() = default;
 
 TerminalChar::TerminalChar() : character('\0'), fg({255, 2555, 255}), bg({0, 0, 0}) {}

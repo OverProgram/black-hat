@@ -18,7 +18,7 @@ public:
     ~BlackHat() override;
 
 protected:
-    std::shared_ptr<TerminalWidget> terminal;
+//    std::shared_ptr<TerminalWidget> terminal;
     Gtk::ScrolledWindow *window;
     BHInstance inst;
 };

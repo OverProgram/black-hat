@@ -8,8 +8,8 @@
 
 typedef int (Program::*memfunc)(lua_State *L);
 
-Program::Program(const std::string& program_path, std::shared_ptr<BHInstance> parent, int parent_handle, int id) : L(luaL_newstate()), parent(parent), id(id) {
-    parent_terminal = parent->get_terminal(parent_handle);
+Program::Program(const std::string& program_path, BHInstance* parent, int parent_handle, int id) : L(luaL_newstate()), parent_terminal_handle(parent_handle), parent(parent), id(id) {
+//    parent_terminal = parent->get_terminal(parent_handle);
     luaL_openlibs(L);
     set_libs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
@@ -24,10 +24,13 @@ int Program::lua_dispatch(lua_State *L) {
     return ((*ptr).*func)(L);
 }
 
-Program::~Program() {
-    lua_close(L);
-    parent->remove_program(id);
-}
+//Program::~Program() {
+//    lua_close(L);
+//    if (parent_terminal.use_count() > 0) {
+//        delete parent_terminal.get();
+//    }
+//}
+Program::~Program() = default;
 
 void Program::on_keypress(const std::string& func_name, char key) {
     lua_getglobal(L, func_name.c_str());
@@ -57,7 +60,7 @@ bool Program::start() {
 
 int Program::add_rows(lua_State *L) {
     int rows = luaL_checkinteger(L, 1);
-    parent_terminal->add_rows(rows);
+    parent->get_terminal(parent_terminal_handle)->add_rows(rows);
     return 0;
 }
 
@@ -68,7 +71,7 @@ int Program::put_char(lua_State *L) {
 
     TerminalChar c;
     c.character = character;
-    parent_terminal->put_char(c, x, y);
+    parent->get_terminal(parent_terminal_handle)->put_char(c, x, y);
 
     return 0;
 }
@@ -76,7 +79,7 @@ int Program::put_char(lua_State *L) {
 int Program::register_keypress(lua_State *L) {
     std::string func_name(luaL_checkstring(L, 1));
 
-    parent_terminal->register_keypress(id, func_name);
+    parent->get_terminal(parent_terminal_handle)->register_keypress(id, func_name);
 
     return 0;
 }
@@ -103,7 +106,7 @@ void Program::set_field(lua_State *L, const std::string& name) {
 
 int Program::get_size(lua_State *L) {
     int width, height;
-    parent_terminal->get_size(width, height);
+    parent->get_terminal(parent_terminal_handle)->get_size(width, height);
     lua_pushnumber(L, width);
     lua_pushnumber(L, height);
     return 2;
