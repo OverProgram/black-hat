@@ -6,12 +6,14 @@
 
 #include <string>
 
-TerminalWidget::TerminalWidget(const std::string& program_path, int width, int height, int font_width, int font_height)
+TerminalWidget::TerminalWidget(std::shared_ptr<BHInstance>& parent_inst, int handle, int width, int height, int font_width, int font_height)
     : Glib::ObjectBase("terminal")
     , Gtk::Widget()
-    , screen_buffer(width * height, std::make_unique<TerminalChar>())
+    , screen_buffer(width * height)
     , width(width)
     , height(height)
+    , parent_inst(parent_inst)
+    , handle(handle)
     , font_width(font_width)
     , font_height(font_height)
     , refWindow(nullptr)
@@ -24,13 +26,23 @@ TerminalWidget::TerminalWidget(const std::string& program_path, int width, int h
     FT_New_Face(ft_lib, "/home/tomer/BlackHat/resources/iv8x16u.bdf", 0, &terminal_face);
     terminal_font = Cairo::FtFontFace::create(terminal_face, 0);
 
-    programs.push_back(std::make_shared<Program>(program_path, this, 0));
-    programs.back()->start();
+    for (auto & i : screen_buffer) {
+        i = std::make_unique<TerminalChar>();
+    }
+
+//    programs.push_back(std::make_shared<Program>(program_path, this, 0));
+//    programs.back()->start();
+//    parent_inst->add_program(program_path, handle);
 
 //    screen_buffer.reserve(100);
 
     set_can_focus(true);
     grab_focus();
+}
+
+void TerminalWidget::run(const std::string& program_path) {
+    int new_program_handle = parent_inst->add_program(program_path, handle);
+    parent_inst->get_program(new_program_handle)->start();
 }
 
 void TerminalWidget::get_preferred_width_vfunc(int &minimum_width, int &natural_width) const {
@@ -117,10 +129,10 @@ bool TerminalWidget::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
 }
 
 void TerminalWidget::add_rows(int rows) {
-    screen_buffer.resize(screen_buffer.size() + rows * width, std::make_unique<TerminalChar>());
-//    for (int i = 0; i < rows * width; i++) {
-//        screen_buffer.push_back(new TerminalChar());
-//    }
+    screen_buffer.reserve(screen_buffer.size() + rows * width);
+    for (int i = 0; i < rows * width; i++) {
+        screen_buffer.push_back(std::make_unique<TerminalChar>());
+    }
     height += rows;
     queue_resize();
 }
@@ -155,7 +167,7 @@ char TerminalWidget::keyval_to_char(unsigned int keyval) {
 bool TerminalWidget::on_key_press_event(GdkEventKey* key_event) {
     char key = keyval_to_char(key_event->keyval);
     auto handler = keypress_handler_stack.top();
-    programs[handler.program_id]->on_keypress(handler.func_name, key);
+    parent_inst->get_program(handler.program_id)->on_keypress(handler.func_name, key);
     return true;
 }
 

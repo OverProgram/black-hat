@@ -10,6 +10,7 @@
 #include <gtkmm.h>
 #include "program.h"
 #include "terminal.h"
+#include "bh_inst.h"
 
 class BlackHat : public Gtk::Window {
 public:
@@ -17,8 +18,9 @@ public:
     ~BlackHat() override;
 
 protected:
-    TerminalWidget *terminal;
+    std::shared_ptr<TerminalWidget> terminal;
     Gtk::ScrolledWindow *window;
+    BHInstance inst;
 };
 
 #endif //BLACKHAT_BLACK_HAT_H

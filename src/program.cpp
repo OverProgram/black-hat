@@ -4,10 +4,12 @@
 #include "program.h"
 
 #include <iostream>
+#include <utility>
 
 typedef int (Program::*memfunc)(lua_State *L);
 
-Program::Program(const std::string& program_path, TerminalWidget* parent, int id) : parent(parent), L(luaL_newstate()), id(id) {
+Program::Program(const std::string& program_path, std::shared_ptr<BHInstance> parent, int parent_handle, int id) : L(luaL_newstate()), parent(parent), id(id) {
+    parent_terminal = parent->get_terminal(parent_handle);
     luaL_openlibs(L);
     set_libs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
@@ -54,7 +56,7 @@ bool Program::start() {
 
 int Program::add_rows(lua_State *L) {
     int rows = luaL_checkinteger(L, 1);
-    parent->add_rows(rows);
+    parent_terminal->add_rows(rows);
     return 0;
 }
 
@@ -63,8 +65,9 @@ int Program::put_char(lua_State *L) {
     int x = luaL_checknumber(L, 2);
     int y = luaL_checknumber(L, 3);
 
-    TerminalChar c{character, {0, 0, 0}, {255, 255, 255}};
-    parent->put_char(c, x, y);
+    TerminalChar c;
+    c.character = character;
+    parent_terminal->put_char(c, x, y);
 
     return 0;
 }
@@ -72,7 +75,7 @@ int Program::put_char(lua_State *L) {
 int Program::register_keypress(lua_State *L) {
     std::string func_name(luaL_checkstring(L, 1));
 
-    parent->register_keypress(id, func_name);
+    parent_terminal->register_keypress(id, func_name);
 
     return 0;
 }
@@ -99,7 +102,7 @@ void Program::set_field(lua_State *L, const std::string& name) {
 
 int Program::get_size(lua_State *L) {
     int width, height;
-    parent->get_size(width, height);
+    parent_terminal->get_size(width, height);
     lua_pushnumber(L, width);
     lua_pushnumber(L, height);
     return 2;

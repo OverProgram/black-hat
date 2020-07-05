@@ -19,6 +19,8 @@
 #include <functional>
 #include <stack>
 
+#include "bh_inst.h"
+
 struct Color {
     float r, g, b;
 };
@@ -32,11 +34,14 @@ struct TerminalChar {
 };
 
 class Program;
+class BHInstance;
 
 class TerminalWidget : public Gtk::Widget {
 public:
-    TerminalWidget(const std::string& program_path, int width, int height, int font_width = 8, int font_height = 16);
+    TerminalWidget(std::shared_ptr<BHInstance>& parent_inst, int handle, int width, int height, int font_width = 8, int font_height = 16);
     ~TerminalWidget() override;
+
+    void run(const std::string& program_path);
 
     void add_rows(int rows = 1);
 //    void execute(Program program);
@@ -61,6 +66,9 @@ protected:
     static char keyval_to_char(unsigned int keyval);
     bool on_key_press_event(GdkEventKey* key_event) override;
 
+    std::shared_ptr<BHInstance> parent_inst;
+    int handle;
+
     Glib::RefPtr<Gdk::Window> refWindow;
 
     std::vector<std::unique_ptr<TerminalChar>> screen_buffer;
@@ -71,7 +79,7 @@ protected:
     FT_Face terminal_face;
     Cairo::RefPtr<Cairo::FtFontFace> terminal_font;
 
-    std::vector<std::shared_ptr<Program>> programs;
+//    std::vector<std::shared_ptr<Program>> programs;
 
     std::stack<KeypressHandler> keypress_handler_stack;
 };
