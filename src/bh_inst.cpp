@@ -7,6 +7,7 @@
 
 BHInstance::BHInstance() : last_added_program_index(0), last_added_terminal_index(0), this_ptr(this) {}
 
+//TODO: Why tf does this crash???
 BHInstance::~BHInstance() = default;
 
 int BHInstance::add_program(const std::string& path, int parent_handle) {

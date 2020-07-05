@@ -181,6 +181,8 @@ void TerminalWidget::get_size(int &width_ptr, int &height_ptr) const {
     height_ptr = this->height;
 }
 
-TerminalWidget::~TerminalWidget() = default;
+TerminalWidget::~TerminalWidget() {
+    parent_inst->remove_program(handle);
+}
 
 TerminalChar::TerminalChar() : character('\0'), fg({255, 2555, 255}), bg({0, 0, 0}) {}

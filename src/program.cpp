@@ -26,6 +26,7 @@ int Program::lua_dispatch(lua_State *L) {
 
 Program::~Program() {
     lua_close(L);
+    parent->remove_program(id);
 }
 
 void Program::on_keypress(const std::string& func_name, char key) {
