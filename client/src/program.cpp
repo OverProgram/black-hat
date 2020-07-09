@@ -4,12 +4,10 @@
 #include "program.h"
 
 #include <iostream>
-#include <utility>
 
 typedef int (Program::*memfunc)(lua_State *L);
 
 Program::Program(const std::string& program_path, BHInstance* parent, int parent_handle, int id) : L(luaL_newstate()), parent_terminal_handle(parent_handle), parent(parent), id(id) {
-//    parent_terminal = parent->get_terminal(parent_handle);
     luaL_openlibs(L);
     set_libs(L);
     *static_cast<Program**>(lua_getextraspace(L)) = this;
@@ -26,11 +24,7 @@ int Program::lua_dispatch(lua_State *L) {
 
 Program::~Program() {
     lua_close(L);
-//    if (parent_terminal.use_count() > 0) {
-//        delete parent_terminal.get();
-//    }
 }
-//Program::~Program() = default;
 
 void Program::on_keypress(const std::string& func_name, char key) {
     lua_getglobal(L, func_name.c_str());
@@ -45,16 +39,6 @@ void Program::on_keypress(const std::string& func_name, char key) {
 }
 
 bool Program::start() {
-//    lua_getglobal(L, "main");
-//    if (!lua_isfunction(L, -1)) {
-//        return false;
-//    }
-//
-//    if (lua_pcall(L, 0, 0, 0) != 0) {
-//        std::cerr << lua_error(L) << std::endl;
-//        return false;
-//    }
-//    return true;
     return call_func("main");
 }
 
